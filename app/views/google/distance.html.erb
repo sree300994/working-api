@@ -1,0 +1,174 @@
+<h2>Enter the Text</h2>
+
+<%= form_tag(google_distance_path, method: :get) do %>
+	<!-- <div id="floating-panel"> -->
+      <strong>Start:</strong>
+      <select id="start">
+		<label>Origin: </label> <br/>
+		<%= text_field_tag :origin %> <br/>
+      </select>
+      <br>
+      <strong>End:</strong>
+      <select id="end">
+		<label>Destination: </label>
+		<%= text_field_tag :destination %> <br/>
+      </select>
+    <!-- </div> -->
+
+    <!-- <div id="submit"> -->
+		<%= submit_tag "Search" %>
+    <!-- </div> -->
+<% end %>
+
+<% if !@result.nil? %>
+	<h3>The distance is <%= @result["rows"][0]["elements"][0]["distance"]["text"] %> </h3> <br/>
+	<h3>The duration is <%= @result["rows"][0]["elements"][0]["duration"]["text"] %> </h3>
+<% end %>
+<!-- <div id="directionsService"></div> -->
+<!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDl1qeclhzkdSDu-z_nSPHUdyFmf9_iMq8&v=3.exp"></script>
+<script>var directionsService = new google.maps.DirectionsService();
+
+	var request = {
+	  origin      : 'Melbourne VIC', // a city, full address, landmark etc
+	  destination : 'Sydney NSW',
+	  travelMode  : google.maps.DirectionsTravelMode.DRIVING
+	};
+
+	directionsService.route(request, function(response, status) {
+	  if ( status == google.maps.DirectionsStatus.OK ) {
+	    alert( response.routes[0].legs[0].distance.value ); // the distance in metres
+	  }
+	  else {
+	    // oops, there's no route between these two locations
+	    // every time this happens, a kitten dies
+	    // so please, ensure your address is formatted properly
+	  }
+	});
+</script>-->
+<!-- <div id="right-panel"></div>
+<div id="map" style="height: 400px; width: 100%;"></div>
+    <script>
+      function initMap() {
+        var directionsDisplay = new google.maps.DirectionsRenderer;
+        var directionsService = new google.maps.DirectionsService;
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 15,
+          center: {lat: 17.355267, lng: 82.54293249999999}
+        });
+        directionsDisplay.setMap(map);
+        directionsDisplay.setPanel(document.getElementById('right-panel'));
+
+        var control = document.getElementById('floating-panel');
+        control.style.display = 'block';
+        map.controls[google.maps.ControlPosition.TOP_CENTER].push(control);
+
+        var onChangeHandler = function() {
+          calculateAndDisplayRoute(directionsService, directionsDisplay);
+        };
+        document.getElementById('start').addEventListener('change', onChangeHandler);
+        document.getElementById('end').addEventListener('change', onChangeHandler);
+        document.getElementById('submit').addEventListener('click');
+      }
+
+      function calculateAndDisplayRoute(directionsService, directionsDisplay) {
+        var start = document.getElementById('start').value;
+        var end = document.getElementById('end').value;
+        directionsService.route({
+          origin: start,
+          destination: end,
+          travelMode: 'DRIVING'
+        }, function(response, status) {
+          if (status === 'OK') {
+            directionsDisplay.setDirections(response);
+          } else {
+            window.alert('Directions request failed due to ' + status);
+          }
+        });
+      }
+    </script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDl1qeclhzkdSDu-z_nSPHUdyFmf9_iMq8&callback=initMap">
+    </script> -->
+
+<!-- <div id="output"></div>
+<div id="map" style="height: 400px; width: 100%;"></div>
+    <script>
+      function initMap() {
+        var bounds = new google.maps.LatLngBounds;
+        var markersArray = [];
+
+        var origin1 = {lat: 55.93, lng: -3.118};
+        var origin2 = 'Greenwich, England';
+        var destinationA = 'Stockholm, Sweden';
+        var destinationB = {lat: 50.087, lng: 14.421};
+
+        var destinationIcon = 'https://chart.googleapis.com/chart?' +
+            'chst=d_map_pin_letter&chld=D|FF0000|000000';
+        var originIcon = 'https://chart.googleapis.com/chart?' +
+            'chst=d_map_pin_letter&chld=O|FFFF00|000000';
+        var map = new google.maps.Map(document.getElementById('map'), {
+          center: {lat: 55.53, lng: 9.4},
+          zoom: 10
+        });
+        var geocoder = new google.maps.Geocoder;
+
+        var service = new google.maps.DistanceMatrixService;
+        service.getDistanceMatrix({
+          origins: [origin1, origin2],
+          destinations: [destinationA, destinationB],
+          travelMode: 'DRIVING',
+          unitSystem: google.maps.UnitSystem.METRIC,
+          avoidHighways: false,
+          avoidTolls: false
+        }, function(response, status) {
+          if (status !== 'OK') {
+            alert('Error was: ' + status);
+          } else {
+            var originList = response.originAddresses;
+            var destinationList = response.destinationAddresses;
+            var outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = '';
+            deleteMarkers(markersArray);
+
+            var showGeocodedAddressOnMap = function(asDestination) {
+              var icon = asDestination ? destinationIcon : originIcon;
+              return function(results, status) {
+                if (status === 'OK') {
+                  map.fitBounds(bounds.extend(results[0].geometry.location));
+                  markersArray.push(new google.maps.Marker({
+                    map: map,
+                    position: results[0].geometry.location,
+                    icon: icon
+                  }));
+                } else {
+                  alert('Geocode was not successful due to: ' + status);
+                }
+              };
+            };
+
+            for (var i = 0; i < originList.length; i++) {
+              var results = response.rows[i].elements;
+              geocoder.geocode({'address': originList[i]},
+                  showGeocodedAddressOnMap(false));
+              for (var j = 0; j < results.length; j++) {
+                geocoder.geocode({'address': destinationList[j]},
+                    showGeocodedAddressOnMap(true));
+                outputDiv.innerHTML += originList[i] + ' to ' + destinationList[j] +
+                    ': ' + results[j].distance.text + ' in ' +
+                    results[j].duration.text + '<br>';
+              }
+            }
+          }
+        });
+      }
+
+      function deleteMarkers(markersArray) {
+        for (var i = 0; i < markersArray.length; i++) {
+          markersArray[i].setMap(null);
+        }
+        markersArray = [];
+      }
+    </script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDl1qeclhzkdSDu-z_nSPHUdyFmf9_iMq8&callback=initMap">
+    </script> -->

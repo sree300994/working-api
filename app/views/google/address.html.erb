@@ -1,0 +1,15 @@
+<h2>Enter the Address</h2>
+
+<%= form_tag(google_address_path, method: :get) do %>
+	<label>Address: </label> <br/>
+	<%= text_field_tag :address %> <br/>
+
+	<%= submit_tag "Search" %>
+<% end %>
+
+<% if !@result.nil? %>
+	<h3>The latitude is <%= @result["results"][0]["geometry"]["bounds"]["northeast"]["lat"] %> </h3>
+	<h3>The Longitude is <%= @result["results"][0]["geometry"]["bounds"]["northeast"]["lng"] %> </h3> 
+	<h3>The City is <%= @result["results"][0]["address_components"][1]["long_name"] %></h3>
+<% end %>
+

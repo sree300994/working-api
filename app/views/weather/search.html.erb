@@ -1,0 +1,13 @@
+<h2>Enter City Name</h2>
+
+<%= form_tag(weather_search_path, method: :get) do %>
+
+	<label>City: </label> <br/>
+	<%= text_field_tag :name %> <br/>
+
+	<%= submit_tag "Search" %>
+<% end %>
+
+<% if !@result.nil? %>
+	<h3>The temperature in <%= params[:name] %> is <%= @result["main"]["temp"] %></h3>
+<% end %>
